@@ -1,0 +1,177 @@
+﻿/*Responsive Design*/
+
+    /*Moblie*/
+@media screen and (max-width: 600px) {
+    body {
+        background-color: yellow;
+    }
+
+    .navBar {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        z-index: 2;
+        text-align: center;
+        width: 50%;
+    }
+
+    .navList {
+        display: none;
+    }
+
+    #nav-btn {
+        padding-top: 5px;
+        width: 80px;
+        box-sizing: border-box;
+    }
+
+    ul.navList {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .navList > li > a {
+        font-size: 20px;
+    }
+
+    .navList > li {
+        display: block;
+        width: 100%;
+    }
+
+    #nav-icon {
+        width: 40px;
+    }
+}
+
+    /*Desktop*/
+    @media screen and (min-width: 600px){
+        #nav-btn{
+        display:none;
+        }
+        #virtual-pageForm{
+            float:right;
+            width:65%;
+        }
+       
+    }
+
+/*Section CSS*/
+body {
+    margin: 0;
+    padding: 0;
+    background-image:url(images/quiz-1400.jpg);
+    
+}
+
+header{
+    background-color: #96805e;
+    height: 100px;
+    padding: 20px;
+}
+main{
+
+}
+
+
+footer {
+    background: #2B2D42;
+    color: #8D99AE;
+    text-align:center;
+    width: 100%;
+    margin: 0;
+    padding: 2%;
+    overflow: hidden;
+}
+
+/*Element CSS*/
+
+ul li {
+  /*list-style: none;
+  display: inline-block;*/
+}
+
+div > p{
+/*display:inline-block;
+float:left;
+width:80%;
+padding:1%;*/
+}
+
+h2, h3, h4 {
+    padding:2%;
+}
+article p{
+    padding:2%;
+}
+
+div label {
+   color:blue;
+}
+
+/*Class CSS*/
+
+.clear {
+    clear: both;
+    margin:0;
+    padding:0;
+    border:0;
+}
+
+.navBar{
+position:fixed;/**/
+padding-left:40%;  
+}
+
+.navList{
+    margin:0;
+    padding:0;
+    background-color:cornflowerblue;
+    text-align: center;
+}
+
+.navList > ul{
+    list-style:none;
+    margin:0;
+    padding:0;
+}
+
+.navList > li{
+    display: inline-block;
+    padding:10px;
+    
+}
+
+.navList > li >a{
+    text-decoration: none;
+
+}
+
+.navList > li:hover{
+    background-color:cadetblue;
+}
+
+
+/*Id CSS*/
+#quiz{
+   float:right;
+   padding-right:20%;
+   
+}
+
+#quiz-start{
+   float:right;
+   width:50%;
+   padding-right:20%;
+   
+}
+
+#quiz-section{
+    
+}
+
+#quizTime{
+    float:right;
+    padding-right:20%;
+}

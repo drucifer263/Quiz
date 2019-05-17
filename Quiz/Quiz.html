@@ -1,0 +1,265 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="images/Tindex.ico">
+    <link rel="stylesheet" type="text/css" href="myStyleSheet.css" />
+    <script src ="https://code.jquery.com/jquery-3.1.1.js"> </script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="myJavaScript.js"></script>
+    <title>Quiz Maker</title>
+</head>
+<body>
+    <nav class="navBar">
+        <div id="nav-btn">
+            <img id="nav-icon" src="images/menu.png" alt="Menu Icon" />
+        </div>
+        <ul class="navList">
+            <li><a class="highlight" href="http://cis-iis2.temple.edu/Fall2018/CIS3344_tua07182/">Home Page</a></li>
+            <li><a href="#top">Top</a></li>
+            <li><a href="#quiz-section">Quiz Builder</a></li>
+            <li><a href="#info">Footer</a></li>
+        </ul>
+    </nav>
+    <div class="clear"></div>
+    <header>
+        <h1 id="top">Quizzer</h1>
+    </header>
+    <main>
+        <section id="quiz-section">
+            <img id="quizTime" src="images/Quiz-Time.png" />
+
+            <div id="quiz">
+                <label>Select the type of question that you want to build:</label>
+                <select  id = "quizSelectorList" name="quizSelectorList">
+                    <option value="multipleChoice">Multiple Choice</option>
+                    <option value="trueFalse">True/False</option>
+                    <option value="shortAnswer">Short Answer</option>
+                </select>
+                <input type="button" id="btnAddQuestion"  value="Submit">
+            </div>
+            
+        </section>
+        <div class="clear"></div>
+
+        <div id="quiz-preview"></div>
+        <div id="submitBTN"><label>Add Question?</label><input id="btnSubmitQuestion" type="button" value="Add Question"></div>
+        <br />
+        <br />
+        <div id="quizFinish"><label>When Finished click button</label><input type="button" value="buildQuiz" id="btnbuildQuiz"></div>
+
+    </main>
+    <footer id="info">&copy; Drew Watson, <a href="mailto:dru.w@temple.edu">dru.w@temple.edu</a></footer>
+    <script>
+        //When document is ready and loaded executes function
+        $(document).ready(function () {
+
+            //Question array
+            var Qarray = new Array();
+
+            //Hides the controls
+            $("#quizFinish").hide();
+            $("#quiz-preview").hide();
+            $("#submitBTN").hide();
+
+            //Gets the type of function
+            function getTypeQuestion() {
+                var selection = $("#quizSelectorList").val();
+                return selection;
+            }
+
+            //Builds the short answer
+            function buildshortAnswer() {
+                $("#quiz-preview").append('<label>Enter Question: <label> <input id="txtSAQuestion" name="SAQuestion" type="text" required><br>');
+                $("#quiz-preview").append('<label>Enter Answer: <label> <input id="txtSAAnswer" type="text" name = "SAAnswer" required><br>');
+                $("#quiz-preview").append('<label>Enter Point Value: <label> <input id="txtSAPointValue" type="text" name = "SAPoints" required><br>');
+                $("#quiz-preview").append('<br>');
+            }
+
+            //Builds the true false
+            function buildTrueFalse() {
+                $("#quiz-preview").append('<label>Enter Question: <label> <input id="txtTFQuestion" type="text" name="TFQuestion" required><br>');
+                $("#quiz-preview").append('<label>Enter Answer: <label> <input id="txtTFAnswer" type="text" required><br>');
+                $("#quiz-preview").append('<input type="radio" name="TrueFalse" id="rdoTrue" value="True"> True<br>');
+                $("#quiz-preview").append('<input type="radio" name="TrueFalse" id="rdoFalse" value="False"> False<br>');
+                $("#quiz-preview").append('<label>Enter Point Value: <label> <input id="txtTFPointValue" type="text" name = "TFPoints" required><br>');
+                $("#quiz-preview").append('<br>');
+            }
+
+            //Builds the multiple choice question
+            function buildMultiple() {
+                $("#quiz-preview").append('<label>Enter Question: <label> <input id="txtMultiQuestion" type="text" name="MultiQuestion" required><br>');
+                $("#quiz-preview").append('Enter the first answer:<input type="text" id="txtMultiAnswerA" name = "AnswerA" required><br>');
+                $("#quiz-preview").append('Enter the second answer:<input type="text" id="txtMultiAnswerB" name = "AnswerB" required><br>');
+                $("#quiz-preview").append('Enter the third answer:<input type="text" id="txtMultiAnswerC" name = "AnswerC" required><br>');
+                $("#quiz-preview").append('Enter the fourth answer:<input type="text" id="txtMultiAnswerD" name = "AnswerAD" required><br>');
+                $("#quiz-preview").append('<label>Enter Answer: <label> <input id="txtMultiAnswerCorrect" type="text" name = "MultiAnswer" required><br>');
+                $("#quiz-preview").append('<label>Enter Point Value: <label> <input id="txtMultiPointValue" type="text" name = "MuliPoints" required><br>');
+                $("#quiz-preview").append('<br>');
+            }
+
+            //Checks and adds the type of question
+            function addQuestion() {
+                var choice = getTypeQuestion();
+
+                if (choice == "" || choice == null) {
+                    alert("Question cannot be blank");
+                }
+
+                else if (choice == "trueFalse") {
+                    buildTrueFalse();
+                }
+
+                else if (choice == "shortAnswer") {
+                    buildshortAnswer();
+                }
+
+                else {
+                    buildMultiple();
+                }
+            }
+
+            //Builds the JSON file for the specific question objects
+            function buildJSON() {
+                
+                //Gets the type of question
+                var choice = getTypeQuestion();
+                alert(choice);
+
+                //Checks the question type
+                if (choice == "" || choice == null) {
+                    alert("Question cannot be blank");
+                }
+
+                else if (choice == "trueFalse") {
+
+                    //Gets the variables for the question objects
+                    var correctTF = $("#txtTFAnswer").val();
+                    var pointTF = $("#txtTFPointValue").val();
+                    var question = $("#txtTFQuestion").val();
+
+                    //Checks the values in question objects
+                    if (correctTF && pointTF != "")
+                    {
+                        //Creates object literal of question
+                        var TFObj = {
+                            TypeOfQuestion: choice,
+                            Answer: correctTF,
+                            Question: question,
+                            PointValue: pointTF
+                        };
+
+                        //Pushes object to q array 
+                        Qarray.push(TFObj);
+
+                        //Stores q array in local storage as a JSON string, essentially it makes a cookie
+                        localStorage.setItem("QuizArray", JSON.stringify(Qarray));
+                        $("#quiz").show();
+                        $("#quiz-preview").hide();
+                        $("#submitBTN").hide();
+                    }
+                     
+                }
+
+                else if (choice == "shortAnswer") {
+                    
+                    //Gets the variables for the question objects
+                    var correctSA = $("#txtSAAnswer").val();
+                    var pointSA = $("#txtSAPointValue").val();
+                    var question = $("#txtSAQuestion").val();
+                    
+                    //Checks the values in question objects
+                    if (correctSA && pointSA != "") {
+                        alert(question + " " + correctSA + " " + pointSA);
+
+                        var SAObj = {
+                            TypeOfQuestion: choice,
+                            Answer: correctSA,
+                            Question: question,
+                            PointValue: pointSA
+                        };
+
+
+                        console.log(SAObj);
+                        Qarray.push(SAObj);
+                        localStorage.setItem("QuizArray", JSON.stringify(Qarray));
+                        $("#quiz").show();
+                        $("#quiz-preview").hide();
+                        $("#submitBTN").hide();
+                        
+                    }
+                }
+
+                else {
+
+                    var a = $("#txtMultiAnswerA").val();
+                    var b = $("#txtMultiAnswerB").val();
+                    var c = $("#txtMultiAnswerC").val();
+                    var d = $("#txtMultiAnswerD").val();
+                    var correctMulti = $("#txtMultiAnswerCorrect").val();
+                    var pointMulti = $("#txtMultiPointValue").val();
+                    var question = $("#txtMultiQuestion").val();
+
+                    if (correctMulti && pointMulti != "") {
+                        var MultiObj = {
+                            TypeOfQuestion: choice,
+                            Answer: correctMulti,
+                            Question: question,
+                            AnswerA: a,
+                            AnswerB: b,
+                            AnswerC: c,
+                            AnswerD: d,
+                            PointValue: pointMulti
+                        };
+
+                        Qarray.push(MultiObj);
+                        localStorage.setItem("QuizArray", JSON.stringify(Qarray));
+                        $("#quiz").show();
+                        $("#quiz-preview").hide();
+                        $("#submitBTN").hide();
+                        
+                    }
+                }
+
+            }
+
+            //Sets local storage to key value pair and opens a window to take the quiz
+            function btnBuildQuiz_Click() {
+                localStorage.setItem("QuizArray", JSON.stringify(Qarray));
+                window.open("TakeQuiz.html");
+            }
+
+            //Event  handlers for buttons
+            $("#btnAddQuestion").click(function(){
+                
+                var choice = getTypeQuestion();
+                console.log(choice);
+                
+                $("#quiz-preview").empty();
+                $("#quiz").hide();
+                $("#quiz-preview").show();
+                $("#submitBTN").show();
+                addQuestion();
+                
+            });//end of click even handler for btnAddQuestion 
+
+            $("#btnSubmitQuestion").click(function () {
+                alert("Building json");
+                
+                    buildJSON();
+                    $("#quiz").show();
+                    $("#quizFinish").show();
+                    
+             
+            });//end of submit question
+
+            $("#btnbuildQuiz").click(function () {
+
+                btnBuildQuiz_Click();
+            });//end of build quiz 
+
+        });//end ready
+    </script>
+</body>
+</html>

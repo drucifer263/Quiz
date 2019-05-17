@@ -1,0 +1,383 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="images/Tindex.ico">
+    <link rel="stylesheet" type="text/css" href="myStyleSheet.css" />
+    <script src="https://code.jquery.com/jquery-3.1.1.js"> </script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="myJavaScript.js"></script>
+    <title>Quiz Taker</title>
+</head>
+<body>
+    <nav class="navBar">
+        <div id="nav-btn">
+            <img id="nav-icon" src="images/menu.png" alt="Menu Icon" />
+        </div>
+        <ul class="navList">
+            <li><a class="highlight" href="http://cis-iis2.temple.edu/Fall2018/CIS3344_tua07182/">Home Page</a></li>
+            <li><a href="#top">Top</a></li>
+            <li><a href="#quiz-section">Quiz Taker</a></li>
+            <li><a href="#info">Credits</a></li>
+        </ul>
+    </nav>
+    <div class="clear"></div>
+    <header>
+        <h1 id="top">Get Quizzed</h1>
+    </header>
+    <main>
+        <section id="quiz-section">
+            <img id="quizTime" src="images/Quiz-Time.png" />
+
+            <div id = "quiz-start">
+                <br>
+                <br>
+                <label>Press the  button below to start the Quiz</label>
+                <input type="button" id="btnStartQuiz" value="Start Quiz">
+            </div>
+
+        </section>
+        <div class="clear"></div>
+
+        <div id="quiz-build"></div>
+        <div id="submitAnswer"><label>Final Answer?</label><input id="btnSubmitAnswer" type="button" value="Submit Answer"></div>
+        <br />
+        <br />
+        <div id="nextQuestion"><label>When Finished answering click here</label><input type="button" value="Next Question" id="btnNextQuestion"></div>
+        <div id="restartQuiz"><input type="button" value="Restart" id="btnRestart"><br /><input type="button" value="New Quiz" id="btnNewQuiz"></div>
+        <div id="results"></div>
+
+    </main>
+    <footer id="info">&copy; Drew Watson, <a href="mailto:dru.w@temple.edu">dru.w@temple.edu</a></footer>
+    <script>
+        $(document).ready(function () {
+            var count = 0;
+            var correctAnswers = 0;
+            var playerPoints = 0;
+            var totalPoints = 0;
+            var score = 0;
+            var quizObj;
+            var Qarray = JSON.parse(localStorage.getItem("QuizArray"));
+            var resultsObj;
+            var Rarray = new Array();
+
+            $("#restartQuiz").hide();
+            $("#nextQuestion").hide();
+            $("#submitAnswer").hide();
+
+            //Begins the quiz
+            function beginQuiz() {
+                //count++;
+                $("#quiz-start").hide();
+                checkQuestion();
+            }
+
+            //Next question init
+            function nextQuestion() {
+                //count++;
+                checkQuestion();
+                $("#submitAnswer").show();
+            }
+
+            //Checks the quiz object to determine the type of question to display
+            function checkQuestion() {
+
+                var choice = getTypeQuestion();
+
+                if (choice == "" || choice == null) {
+                    alert("Question cannot be blank");
+                }
+
+                else if (choice == "trueFalse") {
+                    insertTrueFalse();
+                }
+
+                else if (choice == "shortAnswer") {
+                    insertshortAnswer();
+                }
+
+                else {
+                    insertMultiple();
+                }
+
+            }
+
+            //Checks the quiz object to determine the type of question to check
+            function checkAnswer(qObj) {
+
+                //Gets the type of question
+                var choice = getTypeQ(qObj);
+
+                if (choice == "" || choice == null) {
+                    alert("Question cannot be blank");
+                }
+
+                else if (choice == "trueFalse") {
+                    checkTrueFalse();
+                }
+
+                else if (choice == "shortAnswer") {
+                    checkshortAnswer();
+                }
+
+                else {
+                    checkMultiple();
+                }
+
+            }
+
+            //Gets the type of Question 
+            function getTypeQuestion() {
+
+                //Pops the first element in the question/quiz array  and puts it in the quizObject 
+                quizObj = Qarray.shift();
+
+                //Assigns the type of question to the select variable and returns it
+                var selection = quizObj.TypeOfQuestion;
+                return selection;
+            }
+
+            //Gets the question type
+            function getTypeQ(qObj) {
+                var selection = qObj.TypeOfQuestion;
+                return selection;
+            }
+
+            //Inserts the elements into the proper divs for Short answer
+            function insertshortAnswer() {
+                $("#quiz-build").append('<label>Question: <label>'+quizObj.Question +'<br>');
+                $("#quiz-build").append('<label>Answer: <label> <input id="txtSAAnswer" type="text" name =shortAnswer required><br>');
+                $("#quiz-build").append('<br>');
+
+
+                //Places the current quizobject into a session object for later comparison
+                var element = quizObj;
+                sessionStorage.setItem("QuizObject", JSON.stringify(element));
+                //localStorage.setItem("QuizObject", JSON.stringify(element));
+                
+            }
+
+
+            //Inserts the elements into the proper divs for TF
+            function insertTrueFalse() {
+                $("#quiz-build").append('<label>Question: <label>'+quizObj.Question+'<br>');
+                $("#quiz-build").append('<label>Answer: <label><br>');
+                $("#quiz-build").append('<input type="radio" id ="radoTrue" name="TrueFalse" value="True"> True<br>');
+                $("#quiz-build").append('<input type="radio" id = "radoFalse"name="TrueFalse" value="False"> False<br>');
+                $("#quiz-build").append('<br>');
+
+                //Places the current quizobject into a session object for later comparison
+                var element = quizObj;
+                sessionStorage.setItem("QuizObject", JSON.stringify(element));
+            }
+
+            //Inserts the elements into the proper divs for multi
+            function insertMultiple() {
+                $("#quiz-build").append('<label>Question: <label>'+quizObj.Question +'<br>');
+                $("#quiz-build").append('<select  id = "multiQuestionList" name="multiList"><br>');
+                $("#multiQuestionList").append('<option value="' + quizObj.AnswerA + '">' + quizObj.AnswerA + '</option>');
+                $("#multiQuestionList").append('<option value="' + quizObj.AnswerB + '">' + quizObj.AnswerB + '</option>');
+                $("#multiQuestionList").append('<option value="' + quizObj.AnswerC + '">' + quizObj.AnswerC + '</option>');
+                $("#multiQuestionList").append('<option value="' + quizObj.AnswerD + '">' + quizObj.AnswerD + '</option>');
+                $("#quiz-build").append('<br>');
+
+                //Places the current quizobject into a session object for later comparison
+                var element = quizObj;
+                sessionStorage.setItem("QuizObject", JSON.stringify(element));
+            }
+
+            //Gathers info from quiz object if question is true false
+            function checkTrueFalse() {
+
+                //Gets the player guess from the quiz section and gets the correct answer from quiz object 
+                var playerGuess = $("input[name ='TrueFalse']:checked").val();                var correctAnswer = quizObj.Answer;
+                var correctIncorrect = false;
+                totalPoints += parseInt(quizObj.PointValue);
+
+                alert("Curent totaal points: " + totalPoints);
+
+                if (playerGuess == correctAnswer) {
+                    playerPoints += parseInt(quizObj.PointValue);
+                    alert("Player Points: " + playerPoints + " Player Guess: " + playerGuess + " Correct Guess: " + correctAnswer);
+                    //correctAnswers++;
+                    correctIncorrect = true;
+
+                }
+                else {
+                    alert("Incorrect, here are points with guess and correct answer" + playerPoints + " " + playerGuess + " " + correctAnswer);
+                    correctIncorrect = false;
+                }
+
+                buildResults(playerGuess, correctIncorrect, correctAnswer);
+            }
+
+            //Gathers info from quiz object if question is short answer
+            function checkshortAnswer() {
+
+                //Gets the player guess from the quiz field and gets the correct answer from the current quizobject
+                var playerGuess = $("#txtSAAnswer").val();                var correctAnswer = quizObj.Answer;
+                var correctIncorrect = false;
+                totalPoints += parseInt(quizObj.PointValue);
+                alert("Curent totaal points: " + totalPoints);
+
+                //Checks the guess and answer
+                if (playerGuess == correctAnswer) {
+
+                    //Adds and parses quizobject point value
+                    playerPoints += parseInt(quizObj.PointValue);
+                    alert("Player Points: "+ playerPoints + " Player Guess: " + playerGuess + " Correct Guess: " + correctAnswer+" Total Points: "+totalPoints);
+                    //correctAnswers++;
+                    correctIncorrect = true;
+                }
+                else {
+                    alert("Incorrect, here are points with guess and correct answer " + playerPoints + " " + playerGuess + " " + correctAnswer);
+                    correctIncorrect = false;
+                }
+
+                buildResults(playerGuess, correctIncorrect, correctAnswer);
+            }
+
+            //Gathers info from quiz object if question is mutliple choice
+            function checkMultiple() {
+
+                //Gets the player guess, correct answer and total points from the quiz object
+                var playerGuess = $("#multiQuestionList").val();                var correctAnswer = quizObj.Answer;
+                var correctIncorrect = false;
+                totalPoints += parseInt(quizObj.PointValue);
+
+                alert("Curent totaal points: " + totalPoints);
+
+                //Checks the player guess against the correct answer
+                if (playerGuess == correctAnswer) {
+
+                    //Calculates player points
+                    playerPoints += parseInt(quizObj.PointValue);
+                    alert("Player Points: " + playerPoints + " Player Guess: " + playerGuess + " Correct Guess: " + correctAnswer + " Total Points: " + totalPoints);
+                    //correctAnswers++;
+                    correctIncorrect = true;
+                }
+
+                else {
+                    alert("Incorrect, here are points with guess and correct answer " + playerPoints + " " + playerGuess + " " + correctAnswer);
+                    correctIncorrect = false;
+                }
+
+                buildResults(playerGuess,correctIncorrect,correctAnswer);
+            }
+
+            //Builds result object and places in session object
+            function buildResults(playerGuess,correctIncorrect,correctAnswer) {
+                resultsObj = {
+                    PlayerAnswer: playerGuess,
+                    Indicator: correctIncorrect,
+                    AnswerCorrect: correctAnswer
+                };
+
+                Rarray.push(resultsObj);
+                //var element = resultsObj;
+                sessionStorage.setItem("ResultsObject", JSON.stringify(Rarray));
+
+            }
+
+            //Displays sessison obj
+            function displayResults() {
+                var resultsArray = JSON.parse(sessionStorage.getItem("ResultsObject"));
+                var length = resultsArray.length;
+
+                $("#restartQuiz").hide();
+                $("#nextQuestion").hide();
+                $("#submitAnswer").hide()
+
+                $("#results").append('<label>Score: <label>' +score+ '<br>');
+                for (var i = 0; i < length;i++)
+                {
+                    var index =+ i+1;
+                    $("#results").append('<label>Question#: <label>' + index + " Player Answer: " + resultsArray[i].PlayerAnswer + " Answered Correctly: " + resultsArray[i].Indicator + " Correct Answer: " + resultsArray[i].AnswerCorrect + '<br>');
+                }
+            }
+
+            //Calculates score
+            function calculateScore() {
+                //Gets length of question array
+                length = Qarray.length;
+
+                //Checks to see if there are no more questions in array
+                if (length == 0) {
+
+                    //score = (correctAnswers / count) * 100;
+
+                    //Displays and calculates player score
+                    alert("Player: "+playerPoints+" Total Points: "+totalPoints)
+                    score = (playerPoints/totalPoints)*100;
+                    alert("Your Score is: " + score);
+
+                    $("#nextQuestion").hide();
+                    displayResults();
+                    $("#restartQuiz").show();
+                }
+
+                else {
+                    alert("Continue");
+                }
+            }
+
+            //Submits player guess
+            function submitGuess() {
+
+                //Parses json session object
+                quizObj = JSON.parse(sessionStorage.getItem("QuizObject"));
+                console.log(quizObj);
+                
+                //Checks the quiz object to determine the type of question to display
+                checkAnswer(quizObj);
+                //$("#NextQuestion").show();                //Calculates players score                calculateScore();
+            }
+
+            // Starts a new quiz
+            function newQuiz() {
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.replace("Quiz.html");
+            }
+
+            //Reloads page and quiz
+            function reloadQuiz() {
+                sessionStorage.clear();
+                window.location.reload(true);
+
+            }
+
+            //Event handlers
+            $("#btnStartQuiz").click(function () {
+                beginQuiz();
+                $("#submitAnswer").show();
+                $("nextQuestion").hide();
+            });// end of start quiz
+
+            $("#nextQuestion").click(function () {
+                nextQuestion();
+               // $("#nextQuestion").show();
+            });// end of next question
+
+            $("#btnSubmitAnswer").click(function () {
+                submitGuess();
+                $("#nextQuestion").show();
+                $("#quiz-build").empty();
+                $("#submitAnswer").hide();
+               
+            });//end of submit answer
+
+            $("#btnRestart").click(function () {
+                reloadQuiz();
+            });// end of reload quiz
+
+            $("#btnNewQuiz").click(function () {
+                newQuiz();
+            });// end of new quiz
+
+            
+        });//end doc ready
+    </script>
+</body>
+</html>
